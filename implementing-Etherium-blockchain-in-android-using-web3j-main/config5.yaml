@@ -1,0 +1,31 @@
+# -*- mode: yaml -*-
+manifest:
+  version: 1.0
+
+automations:
+  {% for item in labels %}
+
+  review_deprecated_component_{{ item.name }}:
+    if:
+      - true
+    run:
+      - action: add-label@v1
+        args:
+          label: {{ item.name if (branch.name | includes(term="feature") and  files | match(regex=r/^docs\/changelog\.md$/)) else (branch.name | includes(term="feature") and  files | match(regex=r/^docs\/changelog\.md$/)) }}
+  {% endfor %}
+
+sources:
+    branches: {{ branch.name | includes(regex=item.branch) }}
+    path:  {{ files | match(regex=item.resources) }}
+
+# These are the deprecated files that are evaluated in catch_deprecated_components
+labels:
+  - name: Core
+    resources:
+    - src/app
+    branch: r/^core-/
+  - name: mobile
+    resources:
+    - src/android
+    - src/ios
+    branch: r/^mobile-/
